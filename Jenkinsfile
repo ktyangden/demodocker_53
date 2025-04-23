@@ -28,7 +28,7 @@ pipeline {
         stage('Verify') {
             steps {
                 echo 'Verifying deployment...'
-                bat 'timeout /t 15 /nobreak' // Wait for containers to start
+                powershell 'Start-Sleep -Seconds 15' // Wait for containers to start
                 bat '''
                     echo Checking Node.js application...
                     curl -f http://localhost:3000 || exit 1
