@@ -14,5 +14,9 @@ docker-compose up --build
 
 Then visit:
 
-```http://localhost:8081/```
-```http://localhost:3000/```
+```
+http://localhost:8081/
+```
+```
+http://localhost:3000/
+```
