@@ -39,18 +39,14 @@ pipeline {
         }
     }
     
-    post {
-        always {
-            echo 'Cleaning up...'
-            dir("${DOCKER_COMPOSE_DIR}") {
-                bat 'docker-compose down || exit 0'
-            }
-        }
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed!'
-        }
+   post {
+    always {
+        echo 'Build finished — services will remain running.'
+        // Remove or comment out the next line
+        // dir("${DOCKER_COMPOSE_DIR}") {
+        //     bat 'docker-compose down || exit 0'
+        // }
     }
+}
+
 } 
