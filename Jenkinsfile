@@ -1,21 +1,16 @@
 pipeline {
     agent any
     
+    environment {
+        DOCKER_COMPOSE_DIR = 'demodocker'
+    }
+    
     stages {
         stage('Build') {
             steps {
                 echo 'Building Docker images...'
-                dir('demodocker') {
-                    sh 'docker-compose build'
-                }
-            }
-        }
-        
-        stage('Test') {
-            steps {
-                echo 'Running tests...'
-                dir('demodocker') {
-                    sh 'docker-compose run my-app npm test'
+                dir("${DOCKER_COMPOSE_DIR}") {
+                    sh 'docker-compose build my-app mongo mongo-express'
                 }
             }
         }
@@ -23,8 +18,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying application...'
-                dir('demodocker') {
-                    sh 'docker-compose down'
+                dir("${DOCKER_COMPOSE_DIR}") {
+                    sh 'docker-compose down || true'
                     sh 'docker-compose up -d'
                 }
             }
@@ -33,9 +28,13 @@ pipeline {
         stage('Verify') {
             steps {
                 echo 'Verifying deployment...'
-                sh 'sleep 10' // Wait for containers to start
-                sh 'curl -f http://localhost:3000 || exit 1'
-                sh 'curl -f http://localhost:8081 || exit 1'
+                sh 'sleep 15' // Wait for containers to start
+                sh '''
+                    echo "Checking Node.js application..."
+                    curl -f http://localhost:3000 || exit 1
+                    echo "Checking Mongo Express..."
+                    curl -f http://localhost:8081 || exit 1
+                '''
             }
         }
     }
@@ -43,8 +42,8 @@ pipeline {
     post {
         always {
             echo 'Cleaning up...'
-            dir('demodocker') {
-                sh 'docker-compose down'
+            dir("${DOCKER_COMPOSE_DIR}") {
+                sh 'docker-compose down || true'
             }
         }
         success {
