@@ -33,7 +33,7 @@ pipeline {
                     echo Checking Node.js application...
                     curl -f http://localhost:3000 || exit 1
                     echo Checking Mongo Express...
-                    curl -f http://localhost:8081 || exit 1
+                    curl -f -u admin:pass http://localhost:8081 || exit 1
                 '''
             }
         }
