@@ -10,7 +10,7 @@ pipeline {
             steps {
                 echo 'Building Docker images...'
                 dir("${DOCKER_COMPOSE_DIR}") {
-                    sh 'docker-compose build my-app mongo mongo-express'
+                    bat 'docker-compose build my-app mongo mongo-express'
                 }
             }
         }
@@ -19,8 +19,8 @@ pipeline {
             steps {
                 echo 'Deploying application...'
                 dir("${DOCKER_COMPOSE_DIR}") {
-                    sh 'docker-compose down || true'
-                    sh 'docker-compose up -d'
+                    bat 'docker-compose down || exit 0'
+                    bat 'docker-compose up -d'
                 }
             }
         }
@@ -28,11 +28,11 @@ pipeline {
         stage('Verify') {
             steps {
                 echo 'Verifying deployment...'
-                sh 'sleep 15' // Wait for containers to start
-                sh '''
-                    echo "Checking Node.js application..."
+                bat 'timeout /t 15 /nobreak' // Wait for containers to start
+                bat '''
+                    echo Checking Node.js application...
                     curl -f http://localhost:3000 || exit 1
-                    echo "Checking Mongo Express..."
+                    echo Checking Mongo Express...
                     curl -f http://localhost:8081 || exit 1
                 '''
             }
@@ -43,7 +43,7 @@ pipeline {
         always {
             echo 'Cleaning up...'
             dir("${DOCKER_COMPOSE_DIR}") {
-                sh 'docker-compose down || true'
+                bat 'docker-compose down || exit 0'
             }
         }
         success {
